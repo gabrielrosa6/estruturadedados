@@ -947,6 +947,35 @@
     transition: background 0.35s ease;
   }
 
+
+  /* ── VENN DIAGRAM ── */
+  #venn-canvas {
+    background: transparent;
+    transition: opacity 0.3s;
+  }
+  #venn-hover {
+    letter-spacing: 0.05em;
+    transition: color 0.2s, opacity 0.2s;
+  }
+
+  /* Also upgrade sa-viz and sb-viz to look nicer */
+  #sa-viz .el-box, #sb-viz .el-box {
+    cursor: default;
+  }
+
+
+  /* ── SET OP ACTIVE BUTTON ── */
+  .btn-set-active {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(109,63,200,0.35);
+  }
+  .btn-set-active:hover {
+    background: var(--purple-mid);
+    border-color: var(--purple-mid);
+    color: #fff;
+  }
 </style>
 </head>
 <body>
@@ -1472,25 +1501,25 @@
         <div class="op-block">
           <div class="op-top"><span class="op-name">A | B — União</span></div>
           <p class="op-desc">Retorna todos os elementos que estão em A, em B, ou em ambos. Nenhum elemento é repetido.</p>
-          <div class="op-controls"><button class="btn btn-primary" onclick="setOp('union')">A ∪ B</button></div>
+          <div class="op-controls"><button id="set-btn-union" class="btn" onclick="setOp('union')">A ∪ B</button></div>
         </div>
 
         <div class="op-block">
           <div class="op-top"><span class="op-name">A &amp; B — Interseção</span></div>
           <p class="op-desc">Retorna somente os elementos que existem <strong>em ambos</strong> os conjuntos simultaneamente.</p>
-          <div class="op-controls"><button class="btn" onclick="setOp('inter')">A ∩ B</button></div>
+          <div class="op-controls"><button id="set-btn-inter" class="btn" onclick="setOp('inter')">A ∩ B</button></div>
         </div>
 
         <div class="op-block">
           <div class="op-top"><span class="op-name">A - B — Diferença</span></div>
           <p class="op-desc">Retorna os elementos que estão em A mas <strong>não estão</strong> em B. Ordem importa: A - B ≠ B - A.</p>
-          <div class="op-controls"><button class="btn" onclick="setOp('diff')">A − B</button></div>
+          <div class="op-controls"><button id="set-btn-diff" class="btn" onclick="setOp('diff')">A − B</button></div>
         </div>
 
         <div class="op-block">
           <div class="op-top"><span class="op-name">A ^ B — Diferença Simétrica</span></div>
           <p class="op-desc">Retorna elementos que estão em A ou em B, mas <strong>não em ambos</strong> — o inverso da interseção.</p>
-          <div class="op-controls"><button class="btn" onclick="setOp('sym')">A △ B</button></div>
+          <div class="op-controls"><button id="set-btn-sym" class="btn" onclick="setOp('sym')">A △ B</button></div>
         </div>
 
         <div class="log-area">
@@ -1500,9 +1529,12 @@
       </div>
 
       <div class="viz-panel">
-        <div class="viz-card">
-          <div class="viz-card-title">Resultado da operação</div>
-          <div class="viz-body" id="set-viz" style="min-height:90px"><span class="viz-empty">resultado aparecerá aqui</span></div>
+        <div class="viz-card" style="overflow:visible">
+          <div class="viz-card-title">Diagrama de Venn — interativo</div>
+          <div style="padding:16px 18px 18px">
+            <canvas id="venn-canvas" width="420" height="260" style="width:100%;border-radius:8px;cursor:crosshair;display:block"></canvas>
+            <div id="venn-hover" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:8px;min-height:16px;text-align:center;transition:color 0.2s"></div>
+          </div>
         </div>
         <div class="code-card">
           <div class="code-header">Exemplo de uso</div>
@@ -1536,6 +1568,7 @@ function log(id, msg, type) {
 
 function renderList(id, arr, cls) {
   var el = document.getElementById(id);
+  if (!el) return;
   if (!arr.length) { el.innerHTML = '<span class="viz-empty">vazio</span>'; return; }
   el.innerHTML = arr.map(function(v, i) {
     return '<div class="el ' + cls + '"><div class="el-box">' + v + '</div><div class="el-idx">' + i + '</div></div>';
@@ -1574,6 +1607,7 @@ function renderDict(id, obj) {
 
 function renderSet(id, s) {
   var el = document.getElementById(id);
+  if (!el || el.style.display === 'none') return;
   var arr = Array.from(s);
   if (!arr.length) { el.innerHTML = '<span class="viz-empty">vazio</span>'; return; }
   el.innerHTML = arr.map(function(v) {
@@ -1631,12 +1665,16 @@ function sbAdd() { var v = document.getElementById('sb-val').value.trim(); if (!
 function sbRemove() { var v = document.getElementById('sb-val').value.trim(); if (!v) { log('sb-log', 'Digite o valor.', 'err'); return; } if (!setB.has(v)) { log('sb-log', 'KeyError: "' + v + '" não está em B.', 'err'); return; } setB.delete(v); renderSet('sb-viz', setB); log('sb-log', 'B.remove("' + v + '")  →  |B| = ' + setB.size); }
 function setOp(op) {
   var a = Array.from(setA), b = Array.from(setB), res, label;
-  if (op === 'union')  { res = Array.from(new Set(a.concat(b)));         label = 'A ∪ B  (união)'; }
+  if (op === 'union')  { res = Array.from(new Set(a.concat(b)));           label = 'A ∪ B  (união)'; }
   if (op === 'inter')  { res = a.filter(function(x){return setB.has(x);}); label = 'A ∩ B  (interseção)'; }
   if (op === 'diff')   { res = a.filter(function(x){return !setB.has(x);}); label = 'A − B  (diferença)'; }
   if (op === 'sym')    { res = a.filter(function(x){return !setB.has(x);}).concat(b.filter(function(x){return !setA.has(x);})); label = 'A △ B  (diferença simétrica)'; }
-  renderSet('set-viz', new Set(res));
   log('set-res', label + '  =  {' + res.join(', ') + '}');
+  // highlight active button
+  ['union','inter','diff','sym'].forEach(function(k) {
+    var btn = document.getElementById('set-btn-' + k);
+    if (btn) btn.className = 'btn' + (k === op ? ' btn-set-active' : '');
+  });
 }
 
 // TABS
@@ -1774,6 +1812,461 @@ function toggleTheme() {
     document.body.classList.add('light');
   }
 })();
+
+
+// ── EASTER EGG: $exemplo ──
+var EXEMPLOS = {
+  lista: function() {
+    lista = [];
+    var items = ['Python', 'Java', 'C++', 'Rust', 'Go'];
+    items.forEach(function(v) { lista.push(v); });
+    renderList('l-viz', lista, 'el-list');
+    log('l-log', '✨ Exemplo carregado!  lista = [' + lista.join(', ') + ']');
+  },
+  pilha: function() {
+    pilha = [];
+    ['prato1', 'prato2', 'prato3', 'prato4'].forEach(function(v) { pilha.push(v); });
+    renderStack('s-viz', pilha);
+    log('s-log', '✨ Exemplo carregado! Pilha de pratos — topo: "' + pilha[pilha.length-1] + '"');
+  },
+  fila: function() {
+    fila = [];
+    ['Alice', 'Bruno', 'Carla', 'Diego'].forEach(function(v) { fila.push(v); });
+    renderQueue('q-viz', fila);
+    log('q-log', '✨ Exemplo carregado! Fila de atendimento — próximo: "' + fila[0] + '"');
+  },
+  tupla: function() {
+    tupla = [];
+    ['São Paulo', '-23.55', '-46.63', 'Brasil'].forEach(function(v) { tupla.push(v); });
+    renderList('t-viz', tupla, 'el-tuple');
+    log('t-log', '✨ Exemplo carregado!  tupla = (' + tupla.map(function(x){return '"'+x+'"';}).join(', ') + ')');
+  },
+  dict: function() {
+    dic = {};
+    dic['nome'] = 'Maria'; dic['idade'] = '28'; dic['cidade'] = 'Recife'; dic['profissao'] = 'Dev';
+    renderDict('d-viz', dic);
+    log('d-log', '✨ Exemplo carregado!  dicionário com ' + Object.keys(dic).length + ' chaves');
+  },
+  set: function() {
+    setA = new Set(['maçã', 'banana', 'uva', 'pera']);
+    setB = new Set(['banana', 'uva', 'manga', 'kiwi']);
+    renderSet('sa-viz', setA);
+    renderSet('sb-viz', setB);
+    log('sa-log', '✨ A = {maçã, banana, uva, pera}');
+    log('sb-log', '✨ B = {banana, uva, manga, kiwi}');
+    vennOp = null; setTimeout(function(){ vennDraw(1); }, 30);
+  }
+};
+
+// tab name → exemplo key mapping
+var TAB_TO_KEY = {
+  'tab-lista': 'lista',
+  'tab-pilha': 'pilha',
+  'tab-fila':  'fila',
+  'tab-tupla': 'tupla',
+  'tab-dict':  'dict',
+  'tab-set':   'set'
+};
+
+function getActiveTab() {
+  var sections = document.querySelectorAll('.section.active');
+  if (!sections.length) return null;
+  return TAB_TO_KEY[sections[0].id] || null;
+}
+
+function checkExemplo(value) {
+  if (value.trim().toLowerCase() === '$exemplo') {
+    var key = getActiveTab();
+    if (key && EXEMPLOS[key]) {
+      EXEMPLOS[key]();
+      return true;
+    }
+  }
+  return false;
+}
+
+// Wrap all add-type functions to intercept $exemplo
+var _lAdd = lAdd;
+lAdd = function() {
+  if (checkExemplo(document.getElementById('l-val').value)) {
+    document.getElementById('l-val').value = ''; return;
+  }
+  _lAdd();
+};
+
+var _sPush = sPush;
+sPush = function() {
+  if (checkExemplo(document.getElementById('s-val').value)) {
+    document.getElementById('s-val').value = ''; return;
+  }
+  _sPush();
+};
+
+var _qEnqueue = qEnqueue;
+qEnqueue = function() {
+  if (checkExemplo(document.getElementById('q-val').value)) {
+    document.getElementById('q-val').value = ''; return;
+  }
+  _qEnqueue();
+};
+
+var _tAdd = tAdd;
+tAdd = function() {
+  if (checkExemplo(document.getElementById('t-val').value)) {
+    document.getElementById('t-val').value = ''; return;
+  }
+  _tAdd();
+};
+
+var _dSet = dSet;
+dSet = function() {
+  if (checkExemplo(document.getElementById('d-key').value) ||
+      checkExemplo(document.getElementById('d-val').value)) {
+    document.getElementById('d-key').value = '';
+    document.getElementById('d-val').value = '';
+    return;
+  }
+  _dSet();
+};
+
+var _saAdd = saAdd;
+saAdd = function() {
+  if (checkExemplo(document.getElementById('sa-val').value)) {
+    document.getElementById('sa-val').value = ''; return;
+  }
+  _saAdd();
+};
+
+var _sbAdd = sbAdd;
+sbAdd = function() {
+  if (checkExemplo(document.getElementById('sb-val').value)) {
+    document.getElementById('sb-val').value = ''; return;
+  }
+  _sbAdd();
+};
+
+
+
+
+
+// ── VENN DIAGRAM ──
+var vennOp = null;
+var vennAnim = 0;
+var vennRAF = null;
+
+function vennEase(t) {
+  // ease out elastic light
+  if (t === 0 || t === 1) return t;
+  return Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI / 3)) + 1;
+}
+
+function vennDraw(progress) {
+  var canvas = document.getElementById('venn-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width;
+  var H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  var light = document.body.classList.contains('light');
+  var R = Math.min(W * 0.26, H * 0.38, 90);
+  var gapBase = R * 0.6;
+  var CY = H * 0.48;
+
+  // on intersection op, bring circles closer
+  var gap = gapBase;
+  if (vennOp === 'inter') gap = gapBase * (1 - 0.18 * progress);
+  if (vennOp === 'union') gap = gapBase * (1 + 0.1 * progress);
+
+  var cx1 = W / 2 - gap;
+  var cx2 = W / 2 + gap;
+
+  var aItems = Array.from(setA);
+  var bItems = Array.from(setB);
+
+  // Categorize
+  var onlyA = aItems.filter(function(v) { return !setB.has(v); });
+  var inter  = aItems.filter(function(v) { return setB.has(v); });
+  var onlyB  = bItems.filter(function(v) { return !setA.has(v); });
+
+  // ── Base circles ──
+  function drawCircle(cx, col, strokeCol) {
+    ctx.beginPath();
+    ctx.arc(cx, CY, R, 0, Math.PI * 2);
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.strokeStyle = strokeCol;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  drawCircle(cx1,
+    light ? 'rgba(109,63,200,0.09)' : 'rgba(109,63,200,0.14)',
+    light ? 'rgba(109,63,200,0.45)' : 'rgba(139,92,246,0.6)'
+  );
+  drawCircle(cx2,
+    light ? 'rgba(16,185,129,0.07)' : 'rgba(110,231,183,0.1)',
+    light ? 'rgba(16,185,129,0.4)'  : 'rgba(110,231,183,0.55)'
+  );
+
+  // ── Highlight region ──
+  var alpha = 0.32 * progress;
+
+  if (vennOp === 'union') {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.beginPath(); ctx.arc(cx1, CY, R, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(139,92,246,0.7)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx2, CY, R, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(52,211,153,0.55)'; ctx.fill();
+    ctx.restore();
+
+  } else if (vennOp === 'inter') {
+    var d = Math.abs(cx2 - cx1);
+    if (d < R * 2) {
+      ctx.save();
+      ctx.globalAlpha = alpha * 1.8;
+      ctx.beginPath();
+      vennLens(ctx, cx1, CY, R, cx2, CY, R);
+      ctx.fillStyle = light ? 'rgba(109,63,200,0.7)' : 'rgba(196,181,253,0.9)';
+      ctx.fill();
+      ctx.restore();
+    }
+
+  } else if (vennOp === 'diff') {
+    ctx.save();
+    ctx.globalAlpha = alpha * 1.6;
+    // clip to A, then punch out B
+    ctx.beginPath(); ctx.arc(cx1, CY, R, 0, Math.PI*2); ctx.clip();
+    ctx.beginPath(); ctx.arc(cx1, CY, R, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(139,92,246,0.8)'; ctx.fill();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath(); ctx.arc(cx2, CY, R, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,1)'; ctx.fill();
+    ctx.restore();
+
+  } else if (vennOp === 'sym') {
+    ctx.save();
+    ctx.globalAlpha = alpha * 1.5;
+    // A only
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx1, CY, R, 0, Math.PI*2); ctx.clip();
+    ctx.beginPath(); ctx.arc(cx1, CY, R, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(139,92,246,0.8)'; ctx.fill();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath(); ctx.arc(cx2, CY, R, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,1)'; ctx.fill();
+    ctx.restore();
+    // B only
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx2, CY, R, 0, Math.PI*2); ctx.clip();
+    ctx.beginPath(); ctx.arc(cx2, CY, R, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(52,211,153,0.7)'; ctx.fill();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath(); ctx.arc(cx1, CY, R, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,1)'; ctx.fill();
+    ctx.restore();
+    ctx.restore();
+  }
+
+  // ── Labels A / B ──
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 16px "Playfair Display", serif';
+  ctx.fillStyle = light ? '#6d28d9' : '#a78bfa';
+  ctx.fillText('A', cx1 - R * 0.62, CY - R * 0.72);
+  ctx.fillStyle = light ? '#047857' : '#6ee7b7';
+  ctx.fillText('B', cx2 + R * 0.62, CY - R * 0.72);
+
+  // ── Items ──
+  ctx.font = '500 11px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  function dimmed(inResult) {
+    if (!vennOp) return 1;
+    return inResult ? 1 : 0.18 + 0.1 * (1 - progress);
+  }
+
+  // result membership
+  function inResult(v) {
+    if (!vennOp) return true;
+    if (vennOp === 'union')  return true;
+    if (vennOp === 'inter')  return setA.has(v) && setB.has(v);
+    if (vennOp === 'diff')   return setA.has(v) && !setB.has(v);
+    if (vennOp === 'sym')    return (setA.has(v) && !setB.has(v)) || (setB.has(v) && !setA.has(v));
+    return false;
+  }
+
+  function placeText(items, cx, cy, spreadX, spreadY, baseColor) {
+    var n = items.length;
+    items.forEach(function(v, i) {
+      var angle = n === 1 ? -Math.PI/2 : (i / n) * Math.PI * 2 - Math.PI / 2;
+      var dist  = n === 1 ? 0 : Math.min(spreadX * 0.5, 28);
+      var tx = cx + Math.cos(angle) * dist;
+      var ty = cy + Math.sin(angle) * dist * 0.7;
+      ctx.globalAlpha = dimmed(inResult(v));
+      ctx.fillStyle = baseColor;
+      // small pill bg
+      var tw = ctx.measureText(v).width;
+      ctx.save();
+      ctx.globalAlpha = dimmed(inResult(v)) * (light ? 0.12 : 0.18);
+      ctx.beginPath();
+      ctx.roundRect(tx - tw/2 - 5, ty - 9, tw + 10, 18, 4);
+      ctx.fillStyle = baseColor;
+      ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = dimmed(inResult(v));
+      ctx.fillText(v, tx, ty);
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  placeText(onlyA, cx1 - R*0.35, CY, R*0.38, R*0.5,
+    light ? '#5b21b6' : '#c4b5fd');
+  placeText(inter, (cx1+cx2)/2, CY, R*0.28, R*0.38,
+    light ? '#1d4ed8' : '#e2e8f0');
+  placeText(onlyB, cx2 + R*0.35, CY, R*0.38, R*0.5,
+    light ? '#065f46' : '#6ee7b7');
+
+  ctx.textBaseline = 'alphabetic';
+
+  // ── Op label at bottom ──
+  if (vennOp) {
+    var labels = {
+      union: 'A ∪ B  —  União',
+      inter: 'A ∩ B  —  Interseção',
+      diff:  'A − B  —  Diferença',
+      sym:   'A △ B  —  Diferença Simétrica'
+    };
+    ctx.save();
+    ctx.globalAlpha = progress;
+    ctx.font = '11px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = light ? 'rgba(109,63,200,0.7)' : 'rgba(196,181,253,0.65)';
+    ctx.fillText(labels[vennOp], W/2, H - 8);
+    ctx.restore();
+  }
+
+  // ── Empty hint ──
+  if (!aItems.length && !bItems.length) {
+    ctx.save();
+    ctx.font = 'italic 11px "Source Serif 4", serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = light ? '#a0a0c0' : '#3d3a5a';
+    ctx.fillText('Adicione elementos nos conjuntos A e B', W/2, CY + R + 24);
+    ctx.restore();
+  }
+}
+
+function vennLens(ctx, x1, y1, r1, x2, y2, r2) {
+  var d = Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+  if (d >= r1+r2 || d <= Math.abs(r1-r2)) return;
+  var a = (r1*r1 - r2*r2 + d*d) / (2*d);
+  var h = Math.sqrt(Math.max(0, r1*r1 - a*a));
+  var mx = x1 + a*(x2-x1)/d;
+  var my = y1 + a*(y2-y1)/d;
+  var px = h*(y2-y1)/d, py = h*(x2-x1)/d;
+  var a1a = Math.atan2(my+px-y1, mx-py-x1);
+  var a1b = Math.atan2(my-px-y1, mx+py-x1);
+  var a2a = Math.atan2(my+px-y2, mx-py-x2);
+  var a2b = Math.atan2(my-px-y2, mx+py-x2);
+  ctx.moveTo(mx-py, my+px);
+  ctx.arc(x1, y1, r1, a1a, a1b, false);
+  ctx.arc(x2, y2, r2, a2b, a2a, false);
+  ctx.closePath();
+}
+
+function vennAnimateTo(op) {
+  vennOp = op;
+  vennAnim = 0;
+  if (vennRAF) cancelAnimationFrame(vennRAF);
+  function tick() {
+    vennAnim = Math.min(vennAnim + 0.035, 1);
+    vennDraw(vennEase(vennAnim));
+    if (vennAnim < 1) vennRAF = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function vennResize() {
+  var canvas = document.getElementById('venn-canvas');
+  if (!canvas) return;
+  var container = canvas.parentElement;
+  var w = container.clientWidth - 36;
+  canvas.width  = Math.max(w, 200);
+  canvas.height = 260;
+  vennDraw(1);
+}
+
+// init venn when tab-set is first shown / document ready
+function vennInit() {
+  vennResize();
+  window.addEventListener('resize', vennResize);
+  var canvas = document.getElementById('venn-canvas');
+  if (!canvas) return;
+  canvas.addEventListener('mousemove', function(e) {
+    var rect = canvas.getBoundingClientRect();
+    var sx = canvas.width  / rect.width;
+    var sy = canvas.height / rect.height;
+    var mx = (e.clientX - rect.left) * sx;
+    var my = (e.clientY - rect.top)  * sy;
+    var W = canvas.width, H = canvas.height;
+    var R = Math.min(W*0.26, H*0.38, 90);
+    var gap = R * 0.6;
+    if (vennOp === 'inter') gap = gap * 0.82;
+    if (vennOp === 'union') gap = gap * 1.1;
+    var cx1 = W/2 - gap, cx2 = W/2 + gap, cy = H*0.48;
+    var inA = (mx-cx1)*(mx-cx1)+(my-cy)*(my-cy) <= R*R;
+    var inB = (mx-cx2)*(mx-cx2)+(my-cy)*(my-cy) <= R*R;
+    var hov = document.getElementById('venn-hover');
+    var light = document.body.classList.contains('light');
+    if (hov) {
+      if (inA && inB) { hov.textContent = '∩ interseção de A e B'; hov.style.color = light?'#5b21b6':'#c4b5fd'; }
+      else if (inA)   { hov.textContent = '← exclusivo de A';     hov.style.color = light?'#6d28d9':'#a78bfa'; }
+      else if (inB)   { hov.textContent = '→ exclusivo de B';     hov.style.color = light?'#047857':'#6ee7b7'; }
+      else            { hov.textContent = ''; }
+    }
+  });
+  canvas.addEventListener('mouseleave', function() {
+    var hov = document.getElementById('venn-hover');
+    if (hov) hov.textContent = '';
+  });
+}
+
+// Override setOp to trigger venn animation
+var _setOp_orig = setOp;
+setOp = function(op) {
+  _setOp_orig(op);
+  vennAnimateTo(op);
+};
+
+// Redraw venn after add/remove
+function _vennRefresh() { setTimeout(function() { vennDraw(1); }, 20); }
+var _saAdd_o = saAdd; saAdd = function() { _saAdd_o(); _vennRefresh(); };
+var _sbAdd_o = sbAdd; sbAdd = function() { _sbAdd_o(); _vennRefresh(); };
+var _saRm_o  = saRemove; saRemove = function() { _saRm_o(); _vennRefresh(); };
+var _sbRm_o  = sbRemove; sbRemove = function() { _sbRm_o(); _vennRefresh(); };
+
+// Redraw on theme toggle
+var _toggleTheme_orig = window.toggleTheme;
+window.toggleTheme = function() {
+  _toggleTheme_orig();
+  setTimeout(function() { vennDraw(1); }, 450);
+};
+
+// Init when switching to set tab or on load
+var _sw_orig = window.sw;
+window.sw = function(name, btn) {
+  _sw_orig(name, btn);
+  if (name === 'set') { setTimeout(vennResize, 50); }
+};
+
+// Auto-init
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() { setTimeout(vennInit, 100); });
+} else {
+  setTimeout(vennInit, 100);
+}
 
 // Enter shortcuts
 function onEnter(id, fn) { document.getElementById(id).addEventListener('keydown', function(e){ if(e.key==='Enter') fn(); }); }
