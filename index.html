@@ -976,10 +976,42 @@
     border-color: var(--purple-mid);
     color: #fff;
   }
+
+  /* ── PARTICLE EXPLOSION ── */
+  .el-box {
+    position: relative;
+  }
+  @keyframes elOut {
+    0%   { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.4); }
+  }
+  .el-removing {
+    animation: elOut 0.22s cubic-bezier(0.55,0,1,0.45) forwards !important;
+    pointer-events: none;
+  }
+  #particle-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particleFly var(--dur) cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  @keyframes particleFly {
+    0%   { transform: translate(0,0) scale(1);   opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  }
+
 </style>
 </head>
 <body>
 <canvas id="particles-canvas"></canvas>
+<div id="particle-layer"></div>
 <button id="theme-btn" onclick="toggleTheme()" title="Alternar tema">
   <span class="tooltip">Alternar tema</span>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -2267,6 +2299,187 @@ if (document.readyState === 'loading') {
 } else {
   setTimeout(vennInit, 100);
 }
+
+
+// ── PARTICLE EXPLOSION ENGINE ──
+var PARTICLE_COLORS = {
+  'el-list':  ['#a78bfa','#8b5cf6','#c4b5fd','#7c3aed','#ede9fe'],
+  'el-stack': ['#e879f9','#c084fc','#d946ef','#a855f7','#f0abfc'],
+  'el-queue': ['#6ee7b7','#34d399','#a7f3d0','#10b981','#d1fae5'],
+  'el-tuple': ['#fcd34d','#fbbf24','#fde68a','#f59e0b','#fef3c7'],
+  'el-set':   ['#fb7185','#f43f5e','#fda4af','#e11d48','#ffe4e6'],
+  'default':  ['#c4b5fd','#a78bfa','#e879f9','#6ee7b7','#fcd34d']
+};
+
+function fireExplosion(x, y, cls) {
+  var layer = document.getElementById('particle-layer');
+  if (!layer) return;
+  var colors = PARTICLE_COLORS[cls] || PARTICLE_COLORS['default'];
+  var count = 7;
+
+  for (var i = 0; i < count; i++) {
+    (function(i) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      var size = 2 + Math.random() * 2.5;
+      var angle = (i / count) * Math.PI * 2;
+      var dist  = 18 + Math.random() * 28;
+      var tx = Math.cos(angle) * dist;
+      var ty = Math.sin(angle) * dist;
+      var dur = 0.35 + Math.random() * 0.2;
+      var color = colors[Math.floor(Math.random() * colors.length)];
+
+      p.style.cssText = [
+        'width:'  + size + 'px',
+        'height:' + size + 'px',
+        'left:'   + (x - size/2) + 'px',
+        'top:'    + (y - size/2) + 'px',
+        'background:' + color,
+        '--tx:' + tx + 'px',
+        '--ty:' + ty + 'px',
+        '--dur:' + dur + 's',
+        'opacity:0'
+      ].join(';');
+
+      layer.appendChild(p);
+      setTimeout(function() {
+        if (layer.contains(p)) layer.removeChild(p);
+      }, (dur + 0.1) * 1000);
+    })(i);
+  }
+}
+
+
+
+function explodeElement(elBox, cls, callback) {
+  if (!elBox) { if (callback) callback(); return; }
+  var rect = elBox.getBoundingClientRect();
+  var cx = rect.left + rect.width  / 2;
+  var cy = rect.top  + rect.height / 2;
+  elBox.closest('.el, .el-stack-row') && (elBox.closest('.el, .el-stack-row').style.pointerEvents = 'none');
+  elBox.style.animation = 'elOut 0.22s cubic-bezier(0.55,0,1,0.45) forwards';
+  fireExplosion(cx, cy, cls || 'default');
+  setTimeout(function() { if (callback) callback(); }, 200);
+}
+
+// Find element box by value in a viz container
+function findElBox(containerId, value) {
+  var container = document.getElementById(containerId);
+  if (!container) return null;
+  var boxes = container.querySelectorAll('.el-box, .el-stack-box');
+  for (var i = 0; i < boxes.length; i++) {
+    if (boxes[i].textContent.trim() === String(value)) return boxes[i];
+  }
+  return null;
+}
+
+// ── WRAP REMOVE FUNCTIONS WITH EXPLOSION ──
+
+// Lista remove
+var _lRemove_orig = lRemove;
+lRemove = function() {
+  var v = document.getElementById('l-rm-val').value.trim();
+  var idx = lista.indexOf(v);
+  if (idx === -1) { _lRemove_orig(); return; }
+  var box = findElBox('l-viz', v);
+  explodeElement(box, 'el-list', function() { _lRemove_orig(); });
+};
+
+// Lista pop
+var _lPop_orig = lPop;
+lPop = function() {
+  if (!lista.length) { _lPop_orig(); return; }
+  var v = lista[lista.length - 1];
+  var box = findElBox('l-viz', v);
+  explodeElement(box, 'el-list', function() { _lPop_orig(); });
+};
+
+// Lista clear
+var _lClear_orig = lClear;
+lClear = function() {
+  var boxes = document.querySelectorAll('#l-viz .el-box');
+  var cls = 'el-list';
+  boxes.forEach(function(box, i) {
+    setTimeout(function() {
+      var rect = box.getBoundingClientRect();
+      fireExplosion(rect.left + rect.width/2, rect.top + rect.height/2, cls);
+      box.style.animation = 'elOut 0.22s cubic-bezier(0.55,0,1,0.45) forwards';
+    }, i * 40);
+  });
+  setTimeout(function() { _lClear_orig(); }, boxes.length * 40 + 180);
+};
+
+// Pilha pop
+var _sPop_orig = sPop;
+sPop = function() {
+  if (!pilha.length) { _sPop_orig(); return; }
+  var v = pilha[pilha.length - 1];
+  var box = findElBox('s-viz', v);
+  explodeElement(box, 'el-stack', function() { _sPop_orig(); });
+};
+
+// Fila dequeue
+var _qDequeue_orig = qDequeue;
+qDequeue = function() {
+  if (!fila.length) { _qDequeue_orig(); return; }
+  var v = fila[0];
+  var box = findElBox('q-viz', v);
+  explodeElement(box, 'el-queue', function() { _qDequeue_orig(); });
+};
+
+// Dict delete
+var _dDel_orig = dDel;
+dDel = function() {
+  var k = document.getElementById('d-del-key').value.trim();
+  if (!k || !(k in dic)) { _dDel_orig(); return; }
+  // find dp-k matching key
+  var container = document.getElementById('d-viz');
+  var keys = container ? container.querySelectorAll('.dp-k') : [];
+  var targetPair = null;
+  keys.forEach(function(kEl) {
+    if (kEl.textContent.trim() === k) targetPair = kEl.closest('.dp') || kEl;
+  });
+  if (targetPair) {
+    var rect = targetPair.getBoundingClientRect();
+    fireExplosion(rect.left + rect.width/2, rect.top + rect.height/2, 'el-list');
+    targetPair.style.animation = 'elOut 0.22s cubic-bezier(0.55,0,1,0.45) forwards';
+    setTimeout(function() { _dDel_orig(); }, 200);
+  } else {
+    _dDel_orig();
+  }
+};
+
+// Dict clear
+var _dClear_orig = dClear;
+dClear = function() {
+  var pairs = document.querySelectorAll('#d-viz .dp');
+  pairs.forEach(function(pair, i) {
+    setTimeout(function() {
+      var rect = pair.getBoundingClientRect();
+      fireExplosion(rect.left + rect.width/2, rect.top + rect.height/2, 'el-list');
+      pair.style.animation = 'elOut 0.22s cubic-bezier(0.55,0,1,0.45) forwards';
+    }, i * 40);
+  });
+  setTimeout(function() { _dClear_orig(); }, pairs.length * 40 + 180);
+};
+
+// Set remove A
+var _saRemove_explode = saRemove;
+saRemove = function() {
+  var v = document.getElementById('sa-val').value.trim();
+  if (!setA.has(v)) { _saRemove_explode(); return; }
+  var box = findElBox('sa-viz', v);
+  explodeElement(box, 'el-set', function() { _saRemove_explode(); });
+};
+
+// Set remove B
+var _sbRemove_explode = sbRemove;
+sbRemove = function() {
+  var v = document.getElementById('sb-val').value.trim();
+  if (!setB.has(v)) { _sbRemove_explode(); return; }
+  var box = findElBox('sb-viz', v);
+  explodeElement(box, 'el-set', function() { _sbRemove_explode(); });
+};
 
 // Enter shortcuts
 function onEnter(id, fn) { document.getElementById(id).addEventListener('keydown', function(e){ if(e.key==='Enter') fn(); }); }
