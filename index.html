@@ -508,9 +508,326 @@
     background: var(--border-soft);
     margin: 32px 0;
   }
+
+  /* ── PARTICLES CANVAS ── */
+  #particles-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.45;
+  }
+
+  /* ── ENHANCED BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 10% 0%, rgba(109,63,200,0.14) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 60% at 90% 100%, rgba(139,92,246,0.1) 0%, transparent 55%),
+      radial-gradient(ellipse 30% 30% at 50% 50%, rgba(196,181,253,0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: bgPulse 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgPulse {
+    from { opacity: 0.8; }
+    to   { opacity: 1; }
+  }
+
+  /* ── HEADER ANIMATIONS ── */
+  .header-label {
+    animation: slideRight 0.7s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  h1 {
+    animation: slideUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+  }
+  .header-desc {
+    animation: slideUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+  }
+
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(-22px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TABS ANIMATION ── */
+  .tab {
+    position: relative;
+    overflow: hidden;
+  }
+  .tab::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(139,92,246,0.18) 0%, transparent 70%);
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 0.3s, transform 0.4s;
+    border-radius: inherit;
+  }
+  .tab:hover::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .tab.active {
+    position: relative;
+  }
+  .tab.active::before {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--purple-mid), var(--accent), var(--purple-mid), transparent);
+    background-size: 200% 100%;
+    animation: shimmerLine 2s linear infinite;
+  }
+  @keyframes shimmerLine {
+    from { background-position: -200% 0; }
+    to   { background-position: 200% 0; }
+  }
+
+  /* ── SECTION APPEAR ── */
+  @keyframes appear {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── CARD HOVER ── */
+  .viz-card {
+    transition: box-shadow 0.25s, border-color 0.25s, transform 0.2s;
+  }
+  .viz-card:hover {
+    border-color: rgba(139,92,246,0.3);
+    box-shadow: 0 4px 32px rgba(109,63,200,0.1);
+    transform: translateY(-1px);
+  }
+
+  .code-card {
+    transition: box-shadow 0.25s, border-color 0.25s;
+  }
+  .code-card:hover {
+    border-color: rgba(139,92,246,0.25);
+    box-shadow: 0 4px 24px rgba(109,63,200,0.08);
+  }
+
+  /* ── OP BLOCK ENHANCED HOVER ── */
+  .op-block {
+    position: relative;
+    overflow: hidden;
+  }
+  .op-block::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--purple-mid), var(--accent));
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.25s ease;
+  }
+  .op-block:hover::before {
+    transform: scaleY(1);
+  }
+
+  /* ── BUTTON ENHANCEMENTS ── */
+  .btn {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.06);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .btn:active::after {
+    opacity: 1;
+  }
+  .btn:active {
+    transform: scale(0.96);
+  }
+  .btn-primary {
+    box-shadow: 0 2px 12px rgba(109,63,200,0.35);
+    transition: all 0.15s;
+  }
+  .btn-primary:hover {
+    box-shadow: 0 4px 22px rgba(109,63,200,0.55);
+    transform: translateY(-1px);
+  }
+
+  /* ── INPUT FOCUS ANIMATION ── */
+  input[type=text], input[type=number] {
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus {
+    border-color: var(--purple-mid);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.1);
+  }
+
+  /* ── ELEMENT ANIMATIONS ── */
+  @keyframes elIn {
+    from { opacity: 0; transform: scale(0.5) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes elOut {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.4) translateY(-6px); }
+  }
+
+  .el-box {
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+  .el-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(109,63,200,0.2);
+  }
+
+  /* ── LOG PULSE ── */
+  .log {
+    transition: color 0.2s;
+    position: relative;
+  }
+  .log.pulse {
+    animation: logPulse 0.4s ease;
+  }
+  @keyframes logPulse {
+    0%   { opacity: 1; }
+    30%  { opacity: 0.4; }
+    100% { opacity: 1; }
+  }
+
+  /* ── PROP PILLS HOVER ── */
+  .prop {
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .prop:hover {
+    transform: translateY(-1px);
+  }
+  .prop.yes:hover {
+    box-shadow: 0 2px 10px rgba(110,231,183,0.2);
+  }
+  .prop.no:hover {
+    box-shadow: 0 2px 10px rgba(252,165,165,0.15);
+  }
+
+  /* ── TYPE HEADER SCROLL-IN ── */
+  .type-header {
+    animation: appear 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .layout {
+    animation: appear 0.5s cubic-bezier(0.22,1,0.36,1) 0.05s both;
+  }
+
+  /* ── STACK TOP PULSE ── */
+  .is-top {
+    animation: topPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes topPulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(196,181,253,0.15); }
+    50%       { box-shadow: 0 0 16px rgba(196,181,253,0.4); border-color: var(--accent); }
+  }
+
+  /* ── QUEUE FRONT PULSE ── */
+  .el-front .el-box {
+    animation: frontPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes frontPulse {
+    0%, 100% { box-shadow: 0 0 4px rgba(110,231,183,0.1); }
+    50%       { box-shadow: 0 0 14px rgba(110,231,183,0.35); }
+  }
+
+  /* ── HEADER LINE ANIMATION ── */
+  header {
+    position: relative;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 1px;
+    width: 0;
+    background: linear-gradient(90deg, var(--purple), var(--accent), transparent);
+    animation: headerLine 1.2s cubic-bezier(0.22,1,0.36,1) 0.3s forwards;
+  }
+  @keyframes headerLine {
+    to { width: 100%; }
+  }
+
+  /* ── OP-NAME SHIMMER ── */
+  .op-name {
+    background: linear-gradient(90deg, var(--accent) 30%, var(--purple-light) 50%, var(--accent) 70%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: nameShimmer 4s linear infinite;
+  }
+  @keyframes nameShimmer {
+    from { background-position: 200% center; }
+    to   { background-position: -200% center; }
+  }
+
+  /* ── TYPE-SYNTAX BADGE GLOW ── */
+  .type-syntax {
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .type-syntax:hover {
+    box-shadow: 0 0 12px rgba(109,63,200,0.3);
+    border-color: rgba(109,63,200,0.5);
+  }
+
+  /* ── DICT PAIR HOVER ── */
+  .dp {
+    transition: transform 0.15s;
+  }
+  .dp:hover {
+    transform: translateX(3px);
+  }
+
+  /* ── VIZ CARD TITLE PULSE LINE ── */
+  .viz-card-title {
+    position: relative;
+  }
+  .viz-card-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 18px;
+    width: 24px;
+    height: 1px;
+    background: var(--purple-mid);
+    opacity: 0.5;
+    transition: width 0.3s;
+  }
+  .viz-card:hover .viz-card-title::after {
+    width: 48px;
+    opacity: 1;
+  }
+
+  /* ── SCROLL-REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
 </style>
 </head>
 <body>
+<canvas id="particles-canvas"></canvas>
 <div class="page">
 
   <header>
@@ -1199,6 +1516,110 @@ function sw(name, btn) {
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
 }
+
+
+// ── FLOATING PARTICLES ──
+(function() {
+  var canvas = document.getElementById('particles-canvas');
+  var ctx = canvas.getContext('2d');
+  var W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var COLORS = ['rgba(139,92,246,', 'rgba(196,181,253,', 'rgba(109,63,200,', 'rgba(167,139,250,'];
+
+  function Particle() {
+    this.reset();
+  }
+  Particle.prototype.reset = function() {
+    this.x  = Math.random() * W;
+    this.y  = Math.random() * H;
+    this.r  = Math.random() * 1.8 + 0.4;
+    this.vx = (Math.random() - 0.5) * 0.25;
+    this.vy = -(Math.random() * 0.4 + 0.1);
+    this.alpha = Math.random() * 0.5 + 0.1;
+    this.da = (Math.random() * 0.003 + 0.001) * (Math.random() < 0.5 ? 1 : -1);
+    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    this.life = 0;
+    this.maxLife = Math.random() * 300 + 200;
+  };
+  Particle.prototype.update = function() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.alpha += this.da;
+    this.life++;
+    if (this.alpha < 0.02 || this.alpha > 0.65) this.da = -this.da;
+    if (this.life > this.maxLife || this.y < -10) this.reset();
+  };
+  Particle.prototype.draw = function() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fillStyle = this.color + this.alpha + ')';
+    ctx.fill();
+  };
+
+  for (var i = 0; i < 55; i++) particles.push(new Particle());
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < particles.length; i++) {
+      particles[i].update();
+      particles[i].draw();
+    }
+    // draw faint connecting lines between nearby particles
+    for (var a = 0; a < particles.length; a++) {
+      for (var b = a + 1; b < particles.length; b++) {
+        var dx = particles[a].x - particles[b].x;
+        var dy = particles[a].y - particles[b].y;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 90) {
+          ctx.beginPath();
+          ctx.moveTo(particles[a].x, particles[a].y);
+          ctx.lineTo(particles[b].x, particles[b].y);
+          ctx.strokeStyle = 'rgba(139,92,246,' + (0.06 * (1 - dist/90)) + ')';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// ── SCROLL REVEAL ──
+(function() {
+  var targets = document.querySelectorAll('.viz-card, .code-card, .ops-panel, .type-header, .set-cols > div');
+  targets.forEach(function(el) { el.classList.add('reveal'); });
+
+  function check() {
+    targets.forEach(function(el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight - 40) {
+        el.classList.add('visible');
+      }
+    });
+  }
+  window.addEventListener('scroll', check, { passive: true });
+  check();
+})();
+
+// ── LOG PULSE EFFECT ──
+var _origLog = log;
+log = function(id, msg, type) {
+  _origLog(id, msg, type);
+  var el = document.getElementById(id);
+  el.classList.remove('pulse');
+  void el.offsetWidth; // reflow
+  el.classList.add('pulse');
+};
+
+
 
 // Enter shortcuts
 function onEnter(id, fn) { document.getElementById(id).addEventListener('keydown', function(e){ if(e.key==='Enter') fn(); }); }
