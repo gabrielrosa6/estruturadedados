@@ -824,10 +824,140 @@
     transform: translateY(0);
   }
 
+
+  /* ── THEME TOGGLE BUTTON ── */
+  #theme-btn {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.25s, background 0.25s, color 0.25s, box-shadow 0.25s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  #theme-btn:hover {
+    border-color: var(--purple-mid);
+    color: var(--accent);
+    box-shadow: 0 0 18px rgba(139,92,246,0.35);
+  }
+  #theme-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  #theme-btn:hover svg {
+    transform: rotate(90deg);
+  }
+  #theme-btn.spinning svg {
+    animation: gearSpin 0.55s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes gearSpin {
+    from { transform: rotate(0deg) scale(1); }
+    40%  { transform: rotate(160deg) scale(1.2); }
+    to   { transform: rotate(360deg) scale(1); }
+  }
+  #theme-btn .tooltip {
+    position: absolute;
+    right: 52px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    letter-spacing: 0.05em;
+  }
+  #theme-btn:hover .tooltip {
+    opacity: 1;
+  }
+
+  /* ── LIGHT THEME OVERRIDES ── */
+  body.light {
+    --bg: #f5f3ff;
+    --surface: #ffffff;
+    --surface2: #ede9fe;
+    --border: #ddd6fe;
+    --border-soft: #ede9fe;
+    --purple: #6d3fc8;
+    --purple-mid: #7c3aed;
+    --purple-light: #6d28d9;
+    --purple-faint: rgba(109,63,200,0.06);
+    --text: #1e1333;
+    --text-secondary: #4c3d7a;
+    --text-muted: #8b7cb8;
+    --accent: #5b21b6;
+    --ok: #047857;
+    --err: #b91c1c;
+    --warn: #92400e;
+  }
+  body.light #particles-canvas {
+    opacity: 0.18;
+  }
+  body.light .code-body {
+    color: #4c1d95;
+  }
+  body.light .ck { color: #6d28d9; }
+  body.light .cf { color: #1d4ed8; }
+  body.light .cs { color: #065f46; }
+  body.light .cn { color: #92400e; }
+  body.light .cc { color: #a0a0c0; }
+  body.light #theme-btn {
+    box-shadow: 0 2px 12px rgba(109,63,200,0.15);
+  }
+  body.light #theme-btn:hover {
+    box-shadow: 0 0 18px rgba(109,63,200,0.3);
+  }
+  body.light .el-box {
+    background: #fff;
+  }
+  body.light .dp-k, body.light .dp-sep, body.light .dp-v {
+    background: #fff;
+  }
+  body.light .el-stack-box {
+    background: #fff;
+  }
+
+  /* ── PAGE TRANSITION ── */
+  body {
+    transition: background 0.4s ease, color 0.3s ease;
+  }
+  .ops-panel, .viz-card, .code-card {
+    transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.25s;
+  }
+  .el-box, .el-stack-box, .dp-k, .dp-sep, .dp-v {
+    transition: background 0.35s ease, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+  .log-area {
+    transition: background 0.35s ease;
+  }
+
 </style>
 </head>
 <body>
 <canvas id="particles-canvas"></canvas>
+<button id="theme-btn" onclick="toggleTheme()" title="Alternar tema">
+  <span class="tooltip">Alternar tema</span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+</button>
 <div class="page">
 
   <header>
@@ -1620,6 +1750,30 @@ log = function(id, msg, type) {
 };
 
 
+
+
+// ── THEME TOGGLE ──
+function toggleTheme() {
+  var btn = document.getElementById('theme-btn');
+  // spin animation
+  btn.classList.remove('spinning');
+  void btn.offsetWidth;
+  btn.classList.add('spinning');
+  btn.addEventListener('animationend', function() {
+    btn.classList.remove('spinning');
+  }, { once: true });
+
+  document.body.classList.toggle('light');
+  var isLight = document.body.classList.contains('light');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+// restore saved theme
+(function() {
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+  }
+})();
 
 // Enter shortcuts
 function onEnter(id, fn) { document.getElementById(id).addEventListener('keydown', function(e){ if(e.key==='Enter') fn(); }); }
