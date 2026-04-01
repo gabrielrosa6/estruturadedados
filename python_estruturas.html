@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estruturas de Dados em Python</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b12;
+    --surface: #131220;
+    --surface2: #1a1929;
+    --border: #2a2840;
+    --border-soft: #201f32;
+    --purple: #6d3fc8;
+    --purple-mid: #8b5cf6;
+    --purple-light: #a78bfa;
+    --purple-faint: rgba(109,63,200,0.08);
+    --text: #e8e6f0;
+    --text-secondary: #9490b0;
+    --text-muted: #5c5878;
+    --accent: #c4b5fd;
+    --ok: #6ee7b7;
+    --err: #fca5a5;
+    --warn: #fcd34d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Subtle background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 10% 0%, rgba(109,63,200,0.09) 0%, transparent 55%),
+      radial-gradient(ellipse 40% 60% at 90% 100%, rgba(139,92,246,0.06) 0%, transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px 100px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 72px 0 56px;
+    border-bottom: 1px solid var(--border-soft);
+    margin-bottom: 56px;
+  }
+
+  .header-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--purple-light);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-label::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--purple-light);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 18px;
+    letter-spacing: -0.01em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--purple-light);
+  }
+
+  .header-desc {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    max-width: 560px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    padding: 12px 22px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
+
+  .tab:hover { color: var(--text-secondary); }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--purple-mid);
+    font-weight: 600;
+  }
+
+  /* ── SECTIONS ── */
+  .section { display: none; animation: appear 0.25s ease; }
+  .section.active { display: block; }
+
+  @keyframes appear {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TYPE HEADER ── */
+  .type-header {
+    margin-bottom: 40px;
+  }
+
+  .type-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .type-syntax {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--purple-light);
+    font-weight: 400;
+    background: rgba(109,63,200,0.12);
+    border: 1px solid rgba(109,63,200,0.25);
+    border-radius: 4px;
+    padding: 3px 9px;
+    letter-spacing: 0.02em;
+  }
+
+  .type-tagline {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.03em;
+  }
+
+  .type-desc {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    line-height: 1.75;
+    font-weight: 300;
+  }
+
+  .type-desc strong { color: var(--text); font-weight: 600; }
+
+  .type-props {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .prop {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .prop.yes { border-color: rgba(110,231,183,0.25); color: var(--ok); background: rgba(110,231,183,0.05); }
+  .prop.no  { border-color: rgba(252,165,165,0.2); color: var(--err); background: rgba(252,165,165,0.04); }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 780px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ── OPERATIONS PANEL ── */
+  .ops-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .ops-panel-title {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-soft);
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .op-block {
+    border-bottom: 1px solid var(--border-soft);
+    padding: 18px 20px;
+    transition: background 0.15s;
+  }
+  .op-block:last-child { border-bottom: none; }
+  .op-block:hover { background: var(--surface2); }
+
+  .op-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .op-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .op-desc {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 12px;
+    font-weight: 300;
+  }
+
+  .op-controls {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  input[type=text], input[type=number] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 7px 10px;
+    outline: none;
+    transition: border-color 0.2s;
+    flex: 1;
+    min-width: 70px;
+  }
+  input:focus { border-color: var(--purple-mid); }
+
+  .btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.15s;
+    background: transparent;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--purple-mid); color: var(--accent); background: var(--purple-faint); }
+
+  .btn-primary {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--purple-mid); border-color: var(--purple-mid); color: #fff; }
+
+  .btn-danger { color: var(--err); border-color: rgba(252,165,165,0.2); }
+  .btn-danger:hover { background: rgba(252,165,165,0.06); border-color: rgba(252,165,165,0.4); color: var(--err); }
+
+  /* ── LOG ── */
+  .log-area {
+    padding: 14px 20px;
+    background: var(--bg);
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .log-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .log {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ok);
+    min-height: 18px;
+    line-height: 1.5;
+    word-break: break-all;
+  }
+  .log.err { color: var(--err); }
+  .log.warn { color: var(--warn); }
+
+  /* ── VIZ PANEL ── */
+  .viz-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .viz-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .viz-card-title {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .viz-body {
+    padding: 20px 18px;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .viz-empty {
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-style: italic;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* ELEMENTS */
+  .el {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    animation: elIn 0.2s cubic-bezier(0.34,1.4,0.64,1);
+  }
+
+  @keyframes elIn {
+    from { opacity: 0; transform: scale(0.6) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .el-box {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    min-width: 44px;
+    text-align: center;
+  }
+
+  .el-idx {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+
+  /* colour variants */
+  .el-list .el-box  { border-color: rgba(139,92,246,0.35); color: var(--purple-light); }
+  .el-stack .el-box { border-color: rgba(167,139,250,0.35); color: var(--accent); }
+  .el-queue .el-box { border-color: rgba(110,231,183,0.3);  color: var(--ok); }
+  .el-tuple .el-box { border-color: rgba(252,211,77,0.3);   color: var(--warn); }
+  .el-set   .el-box { border-color: rgba(252,165,165,0.3);  color: var(--err); border-radius: 999px; }
+
+  .el-top .el-box   { border-color: var(--accent); box-shadow: 0 0 8px rgba(196,181,253,0.2); }
+  .el-front .el-box { border-color: var(--ok);     box-shadow: 0 0 8px rgba(110,231,183,0.15); }
+
+  /* dict pair */
+  .dp { display: inline-flex; align-items: stretch; animation: elIn 0.2s cubic-bezier(0.34,1.4,0.64,1); }
+  .dp-k { padding: 8px 12px; background: var(--surface2); border: 1px solid rgba(110,231,183,0.3); border-right: none; border-radius: 6px 0 0 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ok); }
+  .dp-sep { display: flex; align-items: center; padding: 0 2px; background: var(--surface2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); }
+  .dp-v { padding: 8px 12px; background: var(--surface2); border: 1px solid rgba(139,92,246,0.3); border-left: none; border-radius: 0 6px 6px 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--purple-light); }
+
+  /* stack viz */
+  .viz-body.stack-body {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    min-height: 160px;
+  }
+  .el-stack-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: elIn 0.2s cubic-bezier(0.34,1.4,0.64,1);
+  }
+  .el-stack-box {
+    flex: 1;
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid rgba(167,139,250,0.3);
+    background: var(--surface2);
+    color: var(--accent);
+  }
+  .el-stack-box.is-top { border-color: var(--accent); box-shadow: 0 0 8px rgba(196,181,253,0.15); }
+  .el-stack-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); width: 36px; flex-shrink: 0; text-align: right; }
+
+  /* queue arrow */
+  .q-arrow { color: var(--text-muted); font-size: 10px; flex-shrink: 0; }
+  .q-tag   { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-muted); padding: 3px 7px; border: 1px dashed var(--border); border-radius: 4px; flex-shrink: 0; }
+
+  /* code block */
+  .code-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .code-header {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border-soft);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .code-body {
+    padding: 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
+    color: #b39ddb;
+  }
+  .ck  { color: #ce93d8; }
+  .cf  { color: #90caf9; }
+  .cs  { color: #a5d6a7; }
+  .cn  { color: #fff176; }
+  .cc  { color: #4a4870; font-style: italic; }
+
+  /* ── SET COLUMNS ── */
+  .set-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 600px) { .set-cols { grid-template-columns: 1fr; } }
+
+  .divider {
+    height: 1px;
+    background: var(--border-soft);
+    margin: 32px 0;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="header-label">Referência — Python 3</div>
+    <h1>Estruturas de Dados<br>em <em>Python</em></h1>
+    <p class="header-desc">
+      Guia interativo das principais estruturas nativas do Python — visualize as operações, entenda o comportamento de cada tipo e experimente em tempo real.
+    </p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="sw('lista', this)">Lista</button>
+    <button class="tab" onclick="sw('pilha', this)">Pilha</button>
+    <button class="tab" onclick="sw('fila', this)">Fila</button>
+    <button class="tab" onclick="sw('tupla', this)">Tupla</button>
+    <button class="tab" onclick="sw('dict', this)">Dicionário</button>
+    <button class="tab" onclick="sw('set', this)">Conjunto</button>
+  </div>
+
+  <!-- ═══════════ LISTA ═══════════ -->
+  <div class="section active" id="tab-lista">
+    <div class="type-header">
+      <div class="type-name">Lista <span class="type-syntax">list</span></div>
+      <div class="type-tagline">ordenada · mutável · permite duplicatas · acesso por índice</div>
+      <p class="type-desc">
+        A lista é a estrutura de dados mais versátil do Python. Ela armazena uma <strong>sequência ordenada de elementos</strong> de qualquer tipo — inteiros, strings, outras listas, objetos. Por ser mutável, você pode adicionar, remover e modificar elementos a qualquer momento. É equivalente a um array dinâmico em outras linguagens, sendo a escolha padrão quando você precisa de uma coleção que cresce e muda ao longo do tempo.
+      </p>
+      <div class="type-props">
+        <span class="prop yes">Ordenada</span>
+        <span class="prop yes">Mutável</span>
+        <span class="prop yes">Duplicatas</span>
+        <span class="prop yes">Indexável</span>
+        <span class="prop no">Hashable</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="ops-panel">
+        <div class="ops-panel-title">Operações</div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">list.append(x)</span></div>
+          <p class="op-desc">Adiciona o elemento <code>x</code> ao <strong>final</strong> da lista. É a forma mais comum de inserção — rápida e direta, sem necessidade de especificar posição.</p>
+          <div class="op-controls">
+            <input type="text" id="l-val" placeholder="valor" maxlength="12">
+            <button class="btn btn-primary" onclick="lAdd()">Adicionar</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">list.insert(i, x)</span></div>
+          <p class="op-desc">Insere o elemento <code>x</code> na posição <code>i</code>, deslocando os elementos seguintes para a direita. Útil quando a posição importa.</p>
+          <div class="op-controls">
+            <input type="text" id="l-ins-val" placeholder="valor" maxlength="12">
+            <input type="number" id="l-ins-idx" placeholder="índice" min="0" style="max-width:72px">
+            <button class="btn" onclick="lInsert()">Inserir</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">list.remove(x)</span></div>
+          <p class="op-desc">Remove a <strong>primeira ocorrência</strong> do valor <code>x</code> encontrado na lista. Lança <code>ValueError</code> se o valor não existir.</p>
+          <div class="op-controls">
+            <input type="text" id="l-rm-val" placeholder="valor a remover" maxlength="12">
+            <button class="btn btn-danger" onclick="lRemove()">Remover</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">list.pop()</span></div>
+          <p class="op-desc">Remove e <strong>retorna</strong> o último elemento da lista. Pode receber um índice opcional: <code>pop(i)</code> remove o elemento na posição <code>i</code>.</p>
+          <div class="op-controls">
+            <button class="btn" onclick="lPop()">Executar pop()</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">list.sort() &amp; list.reverse()</span></div>
+          <p class="op-desc"><code>sort()</code> ordena a lista <strong>in-place</strong> (modifica a própria lista, sem criar uma cópia). <code>reverse()</code> inverte a ordem dos elementos.</p>
+          <div class="op-controls">
+            <button class="btn" onclick="lSort()">sort()</button>
+            <button class="btn" onclick="lReverse()">reverse()</button>
+            <button class="btn btn-danger" onclick="lClear()">clear()</button>
+          </div>
+        </div>
+
+        <div class="log-area">
+          <div class="log-label">Saída</div>
+          <div class="log" id="l-log">Lista vazia. Adicione elementos acima.</div>
+        </div>
+      </div>
+
+      <div class="viz-panel">
+        <div class="viz-card">
+          <div class="viz-card-title">Estado atual da lista</div>
+          <div class="viz-body" id="l-viz"><span class="viz-empty">lista vazia</span></div>
+        </div>
+        <div class="code-card">
+          <div class="code-header">Exemplo de uso</div>
+          <div class="code-body"><span class="cc"># Criar e manipular uma lista</span>
+<span class="cf">frutas</span> = [<span class="cs">"maçã"</span>, <span class="cs">"banana"</span>, <span class="cs">"laranja"</span>]
+
+<span class="cf">frutas</span>.<span class="cf">append</span>(<span class="cs">"uva"</span>)       <span class="cc"># adiciona ao final</span>
+<span class="cf">frutas</span>.<span class="cf">insert</span>(<span class="cn">1</span>, <span class="cs">"pera"</span>)   <span class="cc"># insere no índice 1</span>
+<span class="cf">frutas</span>.<span class="cf">remove</span>(<span class="cs">"banana"</span>)   <span class="cc"># remove por valor</span>
+<span class="cf">ultima</span> = <span class="cf">frutas</span>.<span class="cf">pop</span>()     <span class="cc"># remove e retorna o último</span>
+<span class="cf">frutas</span>.<span class="cf">sort</span>()             <span class="cc"># ordena alfabeticamente</span>
+
+<span class="cc"># Acesso por índice</span>
+<span class="cf">primeira</span> = <span class="cf">frutas</span>[<span class="cn">0</span>]
+<span class="cf">ultima</span>   = <span class="cf">frutas</span>[<span class="cn">-1</span>]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILHA ═══════════ -->
+  <div class="section" id="tab-pilha">
+    <div class="type-header">
+      <div class="type-name">Pilha <span class="type-syntax">stack (list)</span></div>
+      <div class="type-tagline">LIFO — Last In, First Out · o último a entrar é o primeiro a sair</div>
+      <p class="type-desc">
+        A pilha é uma estrutura de dados com acesso restrito: você só pode inserir ou remover pelo <strong>topo</strong>. O Python não tem um tipo nativo dedicado para pilhas — a <code>list</code> comum cumpre esse papel com eficiência. O princípio LIFO (Last In, First Out) aparece naturalmente em editores de texto (desfazer ações), na pilha de chamadas de funções, e em algoritmos de busca em profundidade.
+      </p>
+      <div class="type-props">
+        <span class="prop yes">LIFO</span>
+        <span class="prop yes">Acesso O(1) no topo</span>
+        <span class="prop no">Acesso por índice</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="ops-panel">
+        <div class="ops-panel-title">Operações</div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">push — list.append(x)</span></div>
+          <p class="op-desc">Empilha um novo elemento no <strong>topo</strong> da pilha. Corresponde ao <code>append()</code> da lista. Operação O(1) — tempo constante.</p>
+          <div class="op-controls">
+            <input type="text" id="s-val" placeholder="valor" maxlength="12">
+            <button class="btn btn-primary" onclick="sPush()">Push</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">pop — list.pop()</span></div>
+          <p class="op-desc">Remove e retorna o elemento do <strong>topo</strong>. O elemento que entrou por último é o primeiro a ser removido. Lança <code>IndexError</code> se a pilha estiver vazia.</p>
+          <div class="op-controls">
+            <button class="btn btn-danger" onclick="sPop()">Pop</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">peek — list[-1]</span></div>
+          <p class="op-desc">Consulta o elemento do topo <strong>sem removê-lo</strong>. Em Python, usa-se o índice <code>-1</code> para acessar o último elemento.</p>
+          <div class="op-controls">
+            <button class="btn" onclick="sPeek()">Peek</button>
+            <button class="btn" onclick="sSize()">Tamanho</button>
+          </div>
+        </div>
+
+        <div class="log-area">
+          <div class="log-label">Saída</div>
+          <div class="log" id="s-log">Pilha vazia.</div>
+        </div>
+      </div>
+
+      <div class="viz-panel">
+        <div class="viz-card">
+          <div class="viz-card-title">Pilha — topo ao centro</div>
+          <div class="viz-body stack-body" id="s-viz"><span class="viz-empty">pilha vazia</span></div>
+        </div>
+        <div class="code-card">
+          <div class="code-header">Exemplo de uso</div>
+          <div class="code-body"><span class="cc"># Pilha com list — LIFO</span>
+<span class="cf">pilha</span> = []
+
+<span class="cc"># Push — empilha no topo</span>
+<span class="cf">pilha</span>.<span class="cf">append</span>(<span class="cs">"primeiro"</span>)
+<span class="cf">pilha</span>.<span class="cf">append</span>(<span class="cs">"segundo"</span>)
+<span class="cf">pilha</span>.<span class="cf">append</span>(<span class="cs">"terceiro"</span>)
+
+<span class="cc"># Peek — vê o topo sem remover</span>
+<span class="cf">topo</span> = <span class="cf">pilha</span>[<span class="cn">-1</span>]       <span class="cc"># "terceiro"</span>
+
+<span class="cc"># Pop — desempilha do topo</span>
+<span class="cf">pilha</span>.<span class="cf">pop</span>()              <span class="cc"># retorna "terceiro"</span>
+<span class="cf">pilha</span>.<span class="cf">pop</span>()              <span class="cc"># retorna "segundo"</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ FILA ═══════════ -->
+  <div class="section" id="tab-fila">
+    <div class="type-header">
+      <div class="type-name">Fila <span class="type-syntax">queue (deque)</span></div>
+      <div class="type-tagline">FIFO — First In, First Out · o primeiro a entrar é o primeiro a sair</div>
+      <p class="type-desc">
+        A fila segue o princípio FIFO (First In, First Out) — como uma fila de banco. Elementos <strong>entram pelo final</strong> e <strong>saem pela frente</strong>. O Python oferece <code>collections.deque</code> como implementação eficiente: inserção e remoção em ambas as extremidades são O(1). Usar uma <code>list</code> simples como fila é ineficiente, pois <code>pop(0)</code> tem custo O(n).
+      </p>
+      <div class="type-props">
+        <span class="prop yes">FIFO</span>
+        <span class="prop yes">O(1) nas pontas</span>
+        <span class="prop no">Acesso aleatório eficiente</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="ops-panel">
+        <div class="ops-panel-title">Operações</div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">enqueue — deque.append(x)</span></div>
+          <p class="op-desc">Insere um elemento no <strong>final</strong> da fila. Quem entra por último terá que esperar mais para ser atendido.</p>
+          <div class="op-controls">
+            <input type="text" id="q-val" placeholder="valor" maxlength="12">
+            <button class="btn btn-primary" onclick="qEnqueue()">Enqueue</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">dequeue — deque.popleft()</span></div>
+          <p class="op-desc">Remove e retorna o elemento da <strong>frente</strong> da fila — aquele que está esperando há mais tempo. O(1) com <code>deque</code>, O(n) com <code>list</code>.</p>
+          <div class="op-controls">
+            <button class="btn btn-danger" onclick="qDequeue()">Dequeue</button>
+            <button class="btn" onclick="qFront()">Ver frente</button>
+            <button class="btn" onclick="qSize()">Tamanho</button>
+          </div>
+        </div>
+
+        <div class="log-area">
+          <div class="log-label">Saída</div>
+          <div class="log" id="q-log">Fila vazia.</div>
+        </div>
+      </div>
+
+      <div class="viz-panel">
+        <div class="viz-card">
+          <div class="viz-card-title">Fila — esquerda sai, direita entra</div>
+          <div class="viz-body" id="q-viz" style="flex-wrap:nowrap;overflow-x:auto;min-height:90px"><span class="viz-empty">fila vazia</span></div>
+        </div>
+        <div class="code-card">
+          <div class="code-header">Exemplo de uso</div>
+          <div class="code-body"><span class="ck">from</span> collections <span class="ck">import</span> deque
+
+<span class="cf">fila</span> = <span class="cf">deque</span>()
+
+<span class="cc"># Enqueue — entra pelo final</span>
+<span class="cf">fila</span>.<span class="cf">append</span>(<span class="cs">"Alice"</span>)
+<span class="cf">fila</span>.<span class="cf">append</span>(<span class="cs">"Bruno"</span>)
+<span class="cf">fila</span>.<span class="cf">append</span>(<span class="cs">"Carla"</span>)
+
+<span class="cc"># Ver quem está na frente</span>
+<span class="cf">frente</span> = <span class="cf">fila</span>[<span class="cn">0</span>]       <span class="cc"># "Alice"</span>
+
+<span class="cc"># Dequeue — sai pela frente</span>
+<span class="cf">fila</span>.<span class="cf">popleft</span>()         <span class="cc"># retorna "Alice"</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TUPLA ═══════════ -->
+  <div class="section" id="tab-tupla">
+    <div class="type-header">
+      <div class="type-name">Tupla <span class="type-syntax">tuple</span></div>
+      <div class="type-tagline">ordenada · imutável · permite duplicatas · hashable</div>
+      <p class="type-desc">
+        A tupla é como uma lista que não pode ser modificada após sua criação. Sua <strong>imutabilidade</strong> traz vantagens importantes: ocupa menos memória, é mais rápida, e por ser <em>hashable</em> pode ser usada como chave de dicionário. Use tuplas para representar dados que não devem mudar — coordenadas, configurações, registros de banco de dados, retornos com múltiplos valores.
+      </p>
+      <div class="type-props">
+        <span class="prop yes">Ordenada</span>
+        <span class="prop no">Imutável</span>
+        <span class="prop yes">Duplicatas</span>
+        <span class="prop yes">Hashable</span>
+        <span class="prop yes">Indexável</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="ops-panel">
+        <div class="ops-panel-title">Operações</div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">Criar tupla</span></div>
+          <p class="op-desc">Tuplas são criadas com parênteses ou apenas com vírgulas. Uma vez criada, <strong>não pode ser alterada</strong> — não há append, remove ou sort.</p>
+          <div class="op-controls">
+            <input type="text" id="t-val" placeholder="valor" maxlength="12">
+            <button class="btn btn-primary" onclick="tAdd()">Adicionar</button>
+            <button class="btn btn-danger" onclick="tClear()">Resetar</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">tuple.count(x)</span></div>
+          <p class="op-desc">Conta <strong>quantas vezes</strong> o valor <code>x</code> aparece na tupla. Uma das poucas operações de leitura disponíveis.</p>
+          <div class="op-controls">
+            <input type="text" id="t-find" placeholder="valor a buscar" maxlength="12">
+            <button class="btn" onclick="tCount()">count()</button>
+            <button class="btn" onclick="tIndex()">index()</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">Acesso por índice</span></div>
+          <p class="op-desc"><code>tupla[0]</code> acessa o primeiro elemento, <code>tupla[-1]</code> o último. O acesso por índice é permitido — só a <strong>modificação</strong> não é.</p>
+          <div class="op-controls">
+            <input type="number" id="t-idx" placeholder="índice" min="0" style="max-width:80px">
+            <button class="btn" onclick="tGet()">Acessar</button>
+          </div>
+        </div>
+
+        <div class="log-area">
+          <div class="log-label">Saída</div>
+          <div class="log" id="t-log">Tupla vazia. Adicione elementos acima.</div>
+        </div>
+      </div>
+
+      <div class="viz-panel">
+        <div class="viz-card">
+          <div class="viz-card-title">Estado atual da tupla</div>
+          <div class="viz-body" id="t-viz"><span class="viz-empty">tupla vazia</span></div>
+        </div>
+        <div class="code-card">
+          <div class="code-header">Exemplo de uso</div>
+          <div class="code-body"><span class="cc"># Tuplas representam dados fixos</span>
+<span class="cf">ponto</span>    = (<span class="cn">10.5</span>, <span class="cn">-3.2</span>)
+<span class="cf">rgb_azul</span> = (<span class="cn">0</span>, <span class="cn">120</span>, <span class="cn">255</span>)
+<span class="cf">usuario</span>  = (<span class="cs">"Ana"</span>, <span class="cn">28</span>, <span class="cs">"SP"</span>)
+
+<span class="cc"># Acesso por índice (leitura)</span>
+<span class="cf">x</span> = <span class="cf">ponto</span>[<span class="cn">0</span>]          <span class="cc"># 10.5</span>
+<span class="cf">y</span> = <span class="cf">ponto</span>[<span class="cn">1</span>]          <span class="cc"># -3.2</span>
+
+<span class="cc"># Unpacking</span>
+<span class="cf">nome</span>, <span class="cf">idade</span>, <span class="cf">cidade</span> = <span class="cf">usuario</span>
+
+<span class="cc"># Usar como chave de dicionário</span>
+<span class="cf">mapa</span> = {<span class="cf">ponto</span>: <span class="cs">"origem"</span>}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ DICIONÁRIO ═══════════ -->
+  <div class="section" id="tab-dict">
+    <div class="type-header">
+      <div class="type-name">Dicionário <span class="type-syntax">dict</span></div>
+      <div class="type-tagline">mapeamento chave → valor · chaves únicas · Python 3.7+ preserva inserção</div>
+      <p class="type-desc">
+        O dicionário é a estrutura de mapeamento central do Python. Ele associa <strong>chaves únicas a valores</strong> — como um índice de livro. A busca por chave é extremamente rápida (O(1) em média) graças à implementação com tabela hash. É usado para representar objetos, configurações, contagens, agrupamentos e qualquer situação onde você precisa acessar dados por nome em vez de posição.
+      </p>
+      <div class="type-props">
+        <span class="prop yes">Mapeamento</span>
+        <span class="prop yes">Mutável</span>
+        <span class="prop no">Chaves duplicadas</span>
+        <span class="prop yes">Busca O(1)</span>
+        <span class="prop yes">Ordenado por inserção</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="ops-panel">
+        <div class="ops-panel-title">Operações</div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">dict[chave] = valor</span></div>
+          <p class="op-desc">Insere um novo par ou <strong>atualiza</strong> o valor de uma chave existente. Se a chave já existe, o valor é substituído silenciosamente.</p>
+          <div class="op-controls">
+            <input type="text" id="d-key" placeholder="chave" maxlength="12">
+            <input type="text" id="d-val" placeholder="valor" maxlength="12">
+            <button class="btn btn-primary" onclick="dSet()">Definir</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">del dict[chave]</span></div>
+          <p class="op-desc">Remove o par chave-valor correspondente. Lança <code>KeyError</code> se a chave não existir.</p>
+          <div class="op-controls">
+            <input type="text" id="d-del-key" placeholder="chave a remover" maxlength="12">
+            <button class="btn btn-danger" onclick="dDel()">Remover</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">dict.get(chave)</span></div>
+          <p class="op-desc">Retorna o valor associado à chave. Ao contrário de <code>dict[k]</code>, <strong>não lança erro</strong> se a chave não existir — retorna <code>None</code> ou um padrão definido.</p>
+          <div class="op-controls">
+            <input type="text" id="d-get-key" placeholder="chave" maxlength="12">
+            <button class="btn" onclick="dGet()">get()</button>
+          </div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">Visões do dicionário</span></div>
+          <p class="op-desc"><code>keys()</code> retorna todas as chaves, <code>values()</code> todos os valores, <code>items()</code> os pares (chave, valor) — todos como visões iteráveis do dicionário.</p>
+          <div class="op-controls">
+            <button class="btn" onclick="dKeys()">keys()</button>
+            <button class="btn" onclick="dVals()">values()</button>
+            <button class="btn" onclick="dItems()">items()</button>
+            <button class="btn btn-danger" onclick="dClear()">clear()</button>
+          </div>
+        </div>
+
+        <div class="log-area">
+          <div class="log-label">Saída</div>
+          <div class="log" id="d-log">Dicionário vazio. Insira uma chave e valor acima.</div>
+        </div>
+      </div>
+
+      <div class="viz-panel">
+        <div class="viz-card">
+          <div class="viz-card-title">Estado atual do dicionário</div>
+          <div class="viz-body" id="d-viz" style="align-items:flex-start;align-content:flex-start"><span class="viz-empty">dicionário vazio</span></div>
+        </div>
+        <div class="code-card">
+          <div class="code-header">Exemplo de uso</div>
+          <div class="code-body"><span class="cc"># Representar um objeto com dicionário</span>
+<span class="cf">aluno</span> = {
+    <span class="cs">"nome"</span>: <span class="cs">"Maria"</span>,
+    <span class="cs">"nota"</span>: <span class="cn">9.5</span>,
+    <span class="cs">"turma"</span>: <span class="cs">"B"</span>
+}
+
+<span class="cc"># Acesso seguro com get()</span>
+<span class="cf">nota</span> = <span class="cf">aluno</span>.<span class="cf">get</span>(<span class="cs">"nota"</span>, <span class="cn">0</span>)
+
+<span class="cc"># Atualizar e remover</span>
+<span class="cf">aluno</span>[<span class="cs">"nota"</span>] = <span class="cn">10</span>
+<span class="ck">del</span> <span class="cf">aluno</span>[<span class="cs">"turma"</span>]
+
+<span class="cc"># Iterar sobre os pares</span>
+<span class="ck">for</span> chave, valor <span class="ck">in</span> <span class="cf">aluno</span>.<span class="cf">items</span>():
+    <span class="cf">print</span>(<span class="cs">f"</span>{chave}<span class="cs">: </span>{valor}<span class="cs">"</span>)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ CONJUNTO ═══════════ -->
+  <div class="section" id="tab-set">
+    <div class="type-header">
+      <div class="type-name">Conjunto <span class="type-syntax">set</span></div>
+      <div class="type-tagline">sem duplicatas · não ordenado · operações matemáticas de conjuntos</div>
+      <p class="type-desc">
+        O conjunto armazena elementos <strong>únicos e não ordenados</strong>. Ele implementa o conceito matemático de conjunto e suporta operações como união, interseção e diferença de forma natural e eficiente. É a escolha ideal para eliminar duplicatas de uma coleção, verificar pertencimento rapidamente (O(1)), e realizar cruzamentos entre grupos de dados.
+      </p>
+      <div class="type-props">
+        <span class="prop no">Ordenado</span>
+        <span class="prop yes">Mutável</span>
+        <span class="prop no">Duplicatas</span>
+        <span class="prop yes">Busca O(1)</span>
+        <span class="prop yes">Operações matemáticas</span>
+      </div>
+    </div>
+
+    <div class="set-cols">
+      <div>
+        <div class="ops-panel" style="margin-bottom:20px">
+          <div class="ops-panel-title">Conjunto A</div>
+          <div class="op-block">
+            <div class="op-top"><span class="op-name">set.add(x)</span></div>
+            <p class="op-desc">Adiciona o elemento ao conjunto. Se o valor <strong>já existir</strong>, o conjunto permanece inalterado — sem erro, sem duplicata.</p>
+            <div class="op-controls">
+              <input type="text" id="sa-val" placeholder="valor" maxlength="10">
+              <button class="btn btn-primary" onclick="saAdd()">add</button>
+              <button class="btn btn-danger" onclick="saRemove()">remove</button>
+            </div>
+          </div>
+          <div class="log-area">
+            <div class="log-label">Saída A</div>
+            <div class="log" id="sa-log">Conjunto A vazio.</div>
+          </div>
+        </div>
+        <div class="viz-card">
+          <div class="viz-card-title">Conjunto A</div>
+          <div class="viz-body" id="sa-viz" style="min-height:80px"><span class="viz-empty">vazio</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="ops-panel" style="margin-bottom:20px">
+          <div class="ops-panel-title">Conjunto B</div>
+          <div class="op-block">
+            <div class="op-top"><span class="op-name">set.add(x)</span></div>
+            <p class="op-desc">Use <code>discard(x)</code> para remover sem erro caso o elemento não exista. Use <code>remove(x)</code> se quiser que um <code>KeyError</code> seja lançado.</p>
+            <div class="op-controls">
+              <input type="text" id="sb-val" placeholder="valor" maxlength="10">
+              <button class="btn btn-primary" onclick="sbAdd()">add</button>
+              <button class="btn btn-danger" onclick="sbRemove()">remove</button>
+            </div>
+          </div>
+          <div class="log-area">
+            <div class="log-label">Saída B</div>
+            <div class="log" id="sb-log">Conjunto B vazio.</div>
+          </div>
+        </div>
+        <div class="viz-card">
+          <div class="viz-card-title">Conjunto B</div>
+          <div class="viz-body" id="sb-viz" style="min-height:80px"><span class="viz-empty">vazio</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="layout">
+      <div class="ops-panel">
+        <div class="ops-panel-title">Operações Matemáticas</div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">A | B — União</span></div>
+          <p class="op-desc">Retorna todos os elementos que estão em A, em B, ou em ambos. Nenhum elemento é repetido.</p>
+          <div class="op-controls"><button class="btn btn-primary" onclick="setOp('union')">A ∪ B</button></div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">A &amp; B — Interseção</span></div>
+          <p class="op-desc">Retorna somente os elementos que existem <strong>em ambos</strong> os conjuntos simultaneamente.</p>
+          <div class="op-controls"><button class="btn" onclick="setOp('inter')">A ∩ B</button></div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">A - B — Diferença</span></div>
+          <p class="op-desc">Retorna os elementos que estão em A mas <strong>não estão</strong> em B. Ordem importa: A - B ≠ B - A.</p>
+          <div class="op-controls"><button class="btn" onclick="setOp('diff')">A − B</button></div>
+        </div>
+
+        <div class="op-block">
+          <div class="op-top"><span class="op-name">A ^ B — Diferença Simétrica</span></div>
+          <p class="op-desc">Retorna elementos que estão em A ou em B, mas <strong>não em ambos</strong> — o inverso da interseção.</p>
+          <div class="op-controls"><button class="btn" onclick="setOp('sym')">A △ B</button></div>
+        </div>
+
+        <div class="log-area">
+          <div class="log-label">Resultado</div>
+          <div class="log" id="set-res">Selecione uma operação acima.</div>
+        </div>
+      </div>
+
+      <div class="viz-panel">
+        <div class="viz-card">
+          <div class="viz-card-title">Resultado da operação</div>
+          <div class="viz-body" id="set-viz" style="min-height:90px"><span class="viz-empty">resultado aparecerá aqui</span></div>
+        </div>
+        <div class="code-card">
+          <div class="code-header">Exemplo de uso</div>
+          <div class="code-body"><span class="cf">A</span> = {<span class="cn">1</span>, <span class="cn">2</span>, <span class="cn">3</span>, <span class="cn">4</span>}
+<span class="cf">B</span> = {<span class="cn">3</span>, <span class="cn">4</span>, <span class="cn">5</span>, <span class="cn">6</span>}
+
+<span class="cf">A</span> | <span class="cf">B</span>   <span class="cc"># união         → {1,2,3,4,5,6}</span>
+<span class="cf">A</span> &amp; <span class="cf">B</span>   <span class="cc"># interseção    → {3,4}</span>
+<span class="cf">A</span> - <span class="cf">B</span>   <span class="cc"># diferença     → {1,2}</span>
+<span class="cf">A</span> ^ <span class="cf">B</span>   <span class="cc"># simétrica     → {1,2,5,6}</span>
+
+<span class="cc"># Eliminar duplicatas de uma lista</span>
+<span class="cf">lista</span> = [<span class="cn">1</span>, <span class="cn">2</span>, <span class="cn">2</span>, <span class="cn">3</span>, <span class="cn">3</span>, <span class="cn">4</span>]
+<span class="cf">unicos</span> = <span class="cf">list</span>(<span class="cf">set</span>(<span class="cf">lista</span>))
+
+<span class="cc"># Verificar pertencimento</span>
+<span class="cn">3</span> <span class="ck">in</span> <span class="cf">A</span>   <span class="cc"># True — O(1)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function log(id, msg, type) {
+  var el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'log' + (type === 'err' ? ' err' : type === 'warn' ? ' warn' : '');
+}
+
+function renderList(id, arr, cls) {
+  var el = document.getElementById(id);
+  if (!arr.length) { el.innerHTML = '<span class="viz-empty">vazio</span>'; return; }
+  el.innerHTML = arr.map(function(v, i) {
+    return '<div class="el ' + cls + '"><div class="el-box">' + v + '</div><div class="el-idx">' + i + '</div></div>';
+  }).join('');
+}
+
+function renderStack(id, arr) {
+  var el = document.getElementById(id);
+  if (!arr.length) { el.innerHTML = '<span class="viz-empty">pilha vazia</span>'; return; }
+  el.innerHTML = arr.map(function(v, i) {
+    var isTop = i === arr.length - 1;
+    return '<div class="el-stack-row"><span class="el-stack-label">' + (isTop ? 'topo' : '') + '</span>' +
+      '<div class="el-stack-box' + (isTop ? ' is-top' : '') + '">' + v + '</div></div>';
+  }).join('');
+}
+
+function renderQueue(id, arr) {
+  var el = document.getElementById(id);
+  if (!arr.length) { el.innerHTML = '<span class="viz-empty">fila vazia</span>'; return; }
+  var h = '<span class="q-tag">← saída</span>';
+  arr.forEach(function(v, i) {
+    h += '<span class="q-arrow">—</span><div class="el el-queue' + (i === 0 ? ' el-front' : '') + '"><div class="el-box">' + v + '</div></div>';
+  });
+  h += '<span class="q-arrow">—</span><span class="q-tag">entrada →</span>';
+  el.innerHTML = h;
+}
+
+function renderDict(id, obj) {
+  var el = document.getElementById(id);
+  var entries = Object.entries(obj);
+  if (!entries.length) { el.innerHTML = '<span class="viz-empty">dicionário vazio</span>'; return; }
+  el.innerHTML = entries.map(function(e) {
+    return '<div class="dp"><span class="dp-k">' + e[0] + '</span><span class="dp-sep">:</span><span class="dp-v">' + e[1] + '</span></div>';
+  }).join('');
+}
+
+function renderSet(id, s) {
+  var el = document.getElementById(id);
+  var arr = Array.from(s);
+  if (!arr.length) { el.innerHTML = '<span class="viz-empty">vazio</span>'; return; }
+  el.innerHTML = arr.map(function(v) {
+    return '<div class="el el-set"><div class="el-box">' + v + '</div></div>';
+  }).join('');
+}
+
+// LISTA
+var lista = [];
+function lAdd() { var v = document.getElementById('l-val').value.trim(); if (!v) { log('l-log', 'Digite um valor antes de adicionar.', 'err'); return; } lista.push(v); renderList('l-viz', lista, 'el-list'); log('l-log', 'append("' + v + '")  →  lista agora tem ' + lista.length + ' elemento(s): [' + lista.join(', ') + ']'); document.getElementById('l-val').value = ''; }
+function lInsert() { var v = document.getElementById('l-ins-val').value.trim(); var i = parseInt(document.getElementById('l-ins-idx').value); if (!v) { log('l-log', 'Digite um valor.', 'err'); return; } if (isNaN(i)) i = 0; lista.splice(i, 0, v); renderList('l-viz', lista, 'el-list'); log('l-log', 'insert(' + i + ', "' + v + '")  →  [' + lista.join(', ') + ']'); document.getElementById('l-ins-val').value = ''; }
+function lRemove() { var v = document.getElementById('l-rm-val').value.trim(); if (!v) { log('l-log', 'Digite o valor a remover.', 'err'); return; } var idx = lista.indexOf(v); if (idx === -1) { log('l-log', 'ValueError: "' + v + '" não está na lista.', 'err'); return; } lista.splice(idx, 1); renderList('l-viz', lista, 'el-list'); log('l-log', 'remove("' + v + '")  →  [' + lista.join(', ') + ']'); }
+function lPop() { if (!lista.length) { log('l-log', 'IndexError: pop de lista vazia.', 'err'); return; } var v = lista.pop(); renderList('l-viz', lista, 'el-list'); log('l-log', 'pop()  →  retornou "' + v + '"  |  lista: [' + lista.join(', ') + ']'); }
+function lSort() { if (!lista.length) { log('l-log', 'Lista vazia.', 'warn'); return; } lista.sort(function(a, b) { return isNaN(a) || isNaN(b) ? a.localeCompare(b) : Number(a) - Number(b); }); renderList('l-viz', lista, 'el-list'); log('l-log', 'sort()  →  [' + lista.join(', ') + ']'); }
+function lReverse() { lista.reverse(); renderList('l-viz', lista, 'el-list'); log('l-log', 'reverse()  →  [' + lista.join(', ') + ']'); }
+function lClear() { lista = []; renderList('l-viz', lista, 'el-list'); log('l-log', 'clear()  →  lista vazia.'); }
+
+// PILHA
+var pilha = [];
+function sPush() { var v = document.getElementById('s-val').value.trim(); if (!v) { log('s-log', 'Digite um valor.', 'err'); return; } pilha.push(v); renderStack('s-viz', pilha); log('s-log', 'push("' + v + '")  →  topo: "' + v + '"  |  tamanho: ' + pilha.length); document.getElementById('s-val').value = ''; }
+function sPop() { if (!pilha.length) { log('s-log', 'IndexError: pop de pilha vazia.', 'err'); return; } var v = pilha.pop(); renderStack('s-viz', pilha); log('s-log', 'pop()  →  removeu "' + v + '"  |  novo topo: ' + (pilha.length ? '"' + pilha[pilha.length-1] + '"' : 'vazio')); }
+function sPeek() { if (!pilha.length) { log('s-log', 'Pilha vazia — sem topo.', 'warn'); return; } log('s-log', 'peek()  →  topo é "' + pilha[pilha.length-1] + '"  (não foi removido)'); }
+function sSize() { log('s-log', 'len(pilha)  →  ' + pilha.length + ' elemento(s)'); }
+
+// FILA
+var fila = [];
+function qEnqueue() { var v = document.getElementById('q-val').value.trim(); if (!v) { log('q-log', 'Digite um valor.', 'err'); return; } fila.push(v); renderQueue('q-viz', fila); log('q-log', 'append("' + v + '")  →  fila: [' + fila.join(' → ') + ']'); document.getElementById('q-val').value = ''; }
+function qDequeue() { if (!fila.length) { log('q-log', 'IndexError: fila vazia.', 'err'); return; } var v = fila.shift(); renderQueue('q-viz', fila); log('q-log', 'popleft()  →  removeu "' + v + '"  |  próximo: ' + (fila.length ? '"' + fila[0] + '"' : 'vazio')); }
+function qFront() { if (!fila.length) { log('q-log', 'Fila vazia.', 'warn'); return; } log('q-log', 'fila[0]  →  "' + fila[0] + '" está na frente'); }
+function qSize() { log('q-log', 'len(fila)  →  ' + fila.length + ' elemento(s)'); }
+
+// TUPLA
+var tupla = [];
+function tAdd() { var v = document.getElementById('t-val').value.trim(); if (!v) { log('t-log', 'Digite um valor.', 'err'); return; } tupla.push(v); renderList('t-viz', tupla, 'el-tuple'); log('t-log', 'tupla  →  (' + tupla.map(function(x){return '"'+x+'"';}).join(', ') + ')'); document.getElementById('t-val').value = ''; }
+function tClear() { tupla = []; renderList('t-viz', tupla, 'el-tuple'); log('t-log', 'Nova tupla criada: ()'); }
+function tCount() { var v = document.getElementById('t-find').value.trim(); if (!v) { log('t-log', 'Digite o valor.', 'err'); return; } var c = tupla.filter(function(x){return x===v;}).length; log('t-log', 'count("' + v + '")  →  ' + c + ' ocorrência(s)'); }
+function tIndex() { var v = document.getElementById('t-find').value.trim(); if (!v) { log('t-log', 'Digite o valor.', 'err'); return; } var i = tupla.indexOf(v); if (i === -1) { log('t-log', 'ValueError: "' + v + '" não está na tupla.', 'err'); } else { log('t-log', 'index("' + v + '")  →  posição ' + i); } }
+function tGet() { var i = parseInt(document.getElementById('t-idx').value); if (isNaN(i)) { log('t-log', 'Digite um índice válido.', 'err'); return; } if (i < 0 || i >= tupla.length) { log('t-log', 'IndexError: índice ' + i + ' fora do intervalo (0-' + (tupla.length-1) + ').', 'err'); return; } log('t-log', 'tupla[' + i + ']  →  "' + tupla[i] + '"'); }
+
+// DICIONÁRIO
+var dic = {};
+function dSet() { var k = document.getElementById('d-key').value.trim(); var v = document.getElementById('d-val').value.trim(); if (!k || !v) { log('d-log', 'Preencha a chave e o valor.', 'err'); return; } var upd = k in dic; dic[k] = v; renderDict('d-viz', dic); log('d-log', (upd ? 'Atualizado' : 'Inserido') + '  d["' + k + '"] = "' + v + '"'); document.getElementById('d-key').value = ''; document.getElementById('d-val').value = ''; }
+function dDel() { var k = document.getElementById('d-del-key').value.trim(); if (!k) { log('d-log', 'Digite a chave a remover.', 'err'); return; } if (!(k in dic)) { log('d-log', 'KeyError: "' + k + '" não existe no dicionário.', 'err'); return; } delete dic[k]; renderDict('d-viz', dic); log('d-log', 'del d["' + k + '"]  →  removido com sucesso.'); }
+function dGet() { var k = document.getElementById('d-get-key').value.trim(); if (!k) { log('d-log', 'Digite a chave.', 'err'); return; } if (k in dic) { log('d-log', 'd.get("' + k + '")  →  "' + dic[k] + '"'); } else { log('d-log', 'd.get("' + k + '")  →  None (chave não existe)', 'warn'); } }
+function dKeys() { log('d-log', 'keys()  →  [' + Object.keys(dic).map(function(x){return'"'+x+'"';}).join(', ') + ']'); }
+function dVals() { log('d-log', 'values()  →  [' + Object.values(dic).map(function(x){return'"'+x+'"';}).join(', ') + ']'); }
+function dItems() { var it = Object.entries(dic).map(function(e){return'("'+e[0]+'", "'+e[1]+'")';}).join(', '); log('d-log', 'items()  →  [' + it + ']'); }
+function dClear() { dic = {}; renderDict('d-viz', dic); log('d-log', 'clear()  →  dicionário vazio.'); }
+
+// CONJUNTOS
+var setA = new Set(), setB = new Set();
+function saAdd() { var v = document.getElementById('sa-val').value.trim(); if (!v) { log('sa-log', 'Digite um valor.', 'err'); return; } if (setA.has(v)) { log('sa-log', '"' + v + '" já existe em A — conjuntos não permitem duplicatas.', 'warn'); return; } setA.add(v); renderSet('sa-viz', setA); log('sa-log', 'A.add("' + v + '")  →  |A| = ' + setA.size); document.getElementById('sa-val').value = ''; }
+function saRemove() { var v = document.getElementById('sa-val').value.trim(); if (!v) { log('sa-log', 'Digite o valor.', 'err'); return; } if (!setA.has(v)) { log('sa-log', 'KeyError: "' + v + '" não está em A.', 'err'); return; } setA.delete(v); renderSet('sa-viz', setA); log('sa-log', 'A.remove("' + v + '")  →  |A| = ' + setA.size); }
+function sbAdd() { var v = document.getElementById('sb-val').value.trim(); if (!v) { log('sb-log', 'Digite um valor.', 'err'); return; } if (setB.has(v)) { log('sb-log', '"' + v + '" já existe em B — conjuntos não permitem duplicatas.', 'warn'); return; } setB.add(v); renderSet('sb-viz', setB); log('sb-log', 'B.add("' + v + '")  →  |B| = ' + setB.size); document.getElementById('sb-val').value = ''; }
+function sbRemove() { var v = document.getElementById('sb-val').value.trim(); if (!v) { log('sb-log', 'Digite o valor.', 'err'); return; } if (!setB.has(v)) { log('sb-log', 'KeyError: "' + v + '" não está em B.', 'err'); return; } setB.delete(v); renderSet('sb-viz', setB); log('sb-log', 'B.remove("' + v + '")  →  |B| = ' + setB.size); }
+function setOp(op) {
+  var a = Array.from(setA), b = Array.from(setB), res, label;
+  if (op === 'union')  { res = Array.from(new Set(a.concat(b)));         label = 'A ∪ B  (união)'; }
+  if (op === 'inter')  { res = a.filter(function(x){return setB.has(x);}); label = 'A ∩ B  (interseção)'; }
+  if (op === 'diff')   { res = a.filter(function(x){return !setB.has(x);}); label = 'A − B  (diferença)'; }
+  if (op === 'sym')    { res = a.filter(function(x){return !setB.has(x);}).concat(b.filter(function(x){return !setA.has(x);})); label = 'A △ B  (diferença simétrica)'; }
+  renderSet('set-viz', new Set(res));
+  log('set-res', label + '  =  {' + res.join(', ') + '}');
+}
+
+// TABS
+function sw(name, btn) {
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Enter shortcuts
+function onEnter(id, fn) { document.getElementById(id).addEventListener('keydown', function(e){ if(e.key==='Enter') fn(); }); }
+onEnter('l-val', lAdd); onEnter('l-ins-val', lInsert); onEnter('l-rm-val', lRemove);
+onEnter('s-val', sPush); onEnter('q-val', qEnqueue); onEnter('t-val', tAdd);
+onEnter('d-val', dSet); onEnter('sa-val', saAdd); onEnter('sb-val', sbAdd);
+</script>
+</body>
+</html>
